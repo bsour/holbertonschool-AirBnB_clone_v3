@@ -10,7 +10,7 @@ app.register_blueprint(app_views, url_prefix="/api/v1")
 
 
 @app.teardown_appcontext
-def teardown():
+def teardown(exc):
     """Close session"""
     storage.close()
 
