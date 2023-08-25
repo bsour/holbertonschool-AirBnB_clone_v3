@@ -47,18 +47,18 @@ def post_city(state_id):
     """Creates a City"""
     state = storage.get(State, state_id)
     if state:
-      try:
-          new_city = request.get_json()
-      except Exception as e:
-          return jsonify({"error": "Not a JSON"}), 400
+        try:
+            new_city = request.get_json()
+        except Exception as e:
+            return jsonify({"error": "Not a JSON"}), 400
 
-      if "name" not in new_city:
-          return jsonify({"error": "Missing name"}), 400
+        if "name" not in new_city:
+            return jsonify({"error": "Missing name"}), 400
 
-      city_obj = City(**new_city)
-      city_obj.state_id = state_id
-      city_obj.save()
-      return jsonify(city_obj.to_dict()), 201
+        city_obj = City(**new_city)
+        city_obj.state_id = state_id
+        city_obj.save()
+        return jsonify(city_obj.to_dict()), 201
     abort(404)
 
 
