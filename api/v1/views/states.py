@@ -6,7 +6,7 @@ from models import storage
 from models.state import State
 
 
-@app_views.route("/states", methods=["GET"])
+@app_views.route("/states", methods=["GET"], strict_slashes=False)
 def all_states():
     """Retrieves the list of all State objects"""
     states = storage.all(State)
@@ -22,7 +22,7 @@ def get_state(state_id):
     abort(404)
 
 
-@app_views.route("/states/<state_id>", methods=["DELETE"])
+@app_views.route("/states/<state_id>", methods=["DELETE"], strict_slashes=False)
 def delete_state(state_id):
     """Deletes a State object"""
     state = storage.get(State, state_id)
@@ -33,7 +33,7 @@ def delete_state(state_id):
     abort(404)
 
 
-@app_views.route("/states", methods=["POST"])
+@app_views.route("/states", methods=["POST"], strict_slashes=False)
 def post_states():
     """Creates a State"""
     try:
