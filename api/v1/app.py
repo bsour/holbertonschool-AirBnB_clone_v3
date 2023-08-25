@@ -15,6 +15,12 @@ def teardown(exc):
     storage.close()
 
 
+@app.errorhandler(404)
+def not_found(error):
+    """Return a JSON-formatted 404 status"""
+    return make_response(jsonify({"error": "Not found"}), 404)
+
+
 if __name__ == "__main__":
     app_host = getenv("HBNB_API_HOST")
     app_port = getenv("HBNB_API_PORT")
