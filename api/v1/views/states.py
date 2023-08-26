@@ -42,7 +42,7 @@ def post_states():
     try:
         new_state = request.get_json()
     except Exception as e:
-        return jsonify({"error": "Not a JSON"}), 400
+        return jsonify({"error": "Not a valid JSON"}), 400
 
     if "name" not in new_state:
         return jsonify({"error": "Missing name"}), 400
