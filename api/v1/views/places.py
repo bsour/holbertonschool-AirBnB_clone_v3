@@ -1,105 +1,79 @@
-#!/usr/bin/python3
-"""
-route for handling Place objects and operations
-"""
-from flask import jsonify, abort, request
-from api.v1.views import app_views, storage
-from models.place import Place
-from models.city import City
-from models.user import User
+from flask import Blueprint, jsonify, request
+from models import City, Place  # Import your City and Place models
+from app import app  # Import your Flask app instance
+
+places_blueprint = Blueprint('places', __name__)
 
 
-@app_views.route("/cities/<city_id>/places", methods=["GET"],
-                 strict_slashes=False)
-def places_by_city(city_id):
-    """
-    retrieves all Place objects by city
-    :return: json of all Places
-    """
-    place_list = []
-    city_obj = storage.get("City", str(city_id))
-    
-    if not city_obj:
-        abort(404, "City not found")
-    
-    for obj in city_obj.places:
-        place_list.append(obj.to_json())
+@places_blueprint.route('/api/v1/cities/<city_id>/places', methods=['GET'])
+def get_places_by_city(city_id):
+    city = City.get(city_id)
+    if city is None:
+        return jsonify({'error': 'City not found'}), 404
 
-    return jsonify(place_list)
+    places = city.places
+    places_json = [place.to_dict() for place in places]
+    return jsonify(places_json), 200
 
 
-@app_views.route("/cities/<city_id>/places", methods=["POST"],
-                 strict_slashes=False)
-def place_create(city_id):
-    place_json = request.get_json(silent=True)
-    if place_json is None:
-        abort(400, 'Not a JSON')
-    if "user_id" not in place_json:
-        abort(400, 'Missing user_id')
-    if "name" not in place_json:
-        abort(400, 'Missing name')
-    
-    user_id = place_json["user_id"]
-    user = storage.get(User, user_id)
-    if not user:
-        abort(404)
-    
-    city = storage.get(City, city_id)
-    if not city:
-        abort(404)
+@places_blueprint.route('/api/v1/places/<place_id>', methods=['GET'])
+def get_place(place_id):
+    place = Place.get(place_id)
+    if place is None:
+        return jsonify({'error': 'Place not found'}), 404
 
-    place_json["city_id"] = city_id
-
-    new_place = Place(**place_json)
-    new_place.save()
-    resp = jsonify(new_place.to_dict())
-    resp.status_code = 201
-
-    return resp
+    return jsonify(place.to_dict()), 200
 
 
-@app_views.route("/places/<place_id>",  methods=["GET"],
-                 strict_slashes=False)
-def place_by_id(place_id):
-    fetched_obj = storage.get(Place, place_id)
+@places_blueprint.route('/api/v1/places/<place_id>', methods=['DELETE'])
+def delete_place(place_id):
+    place = Place.get(place_id)
+    if place is None:
+        return jsonify({'error': 'Place not found'}), 404
 
-    if fetched_obj is None:
-        abort(404)
-
-    return jsonify(fetched_obj.to_dict())
-
-
-@app_views.route("/places/<place_id>",  methods=["PUT"],
-                 strict_slashes=False)
-def place_put(place_id):
-    place_json = request.get_json(silent=True)
-    if place_json is None:
-        abort(400, 'Not a JSON')
-
-    fetched_obj = storage.get(Place, place_id)
-
-    if fetched_obj is None:
-        abort(404)
-
-    ignore_keys = ["id", "user_id", "city_id", "created_at", "updated_at"]
-    for key, val in place_json.items():
-        if key not in ignore_keys:
-            setattr(fetched_obj, key, val)
-
-    fetched_obj.save()
-
-    return jsonify(fetched_obj.to_dict())
+    place.delete()  # Implement the delete method on your Place model
+    return jsonify({}), 200
 
 
-@app_views.route("/places/<place_id>",  methods=["DELETE"],
-                 strict_slashes=False)
-def place_delete_by_id(place_id):
-    fetched_obj = storage.get(Place, place_id)
+@places_blueprint.route('/api/v1/cities/<city_id>/places', methods=['POST'])
+def create_place(city_id):
+    city = City.get(city_id)
+    if city is None:
+        return jsonify({'error': 'City not found'}), 404
 
-    if fetched_obj is None:
-        abort(404)
+    data = request.get_json()
+    if data is None:
+        return jsonify({'error': 'Not a JSON'}), 400
+    if 'user_id' not in data:
+        return jsonify({'error': 'Missing user_id'}), 400
 
-    storage.delete(fetched_obj)
-    storage.save()
+    user_id = data['user_id']
+    user = User.get(user_id)  # Implement the User model and get method
+    if user is None:
+        return jsonify({'error': 'User not found'}), 404
 
-    return jsonify({})
+    if 'name' not in data:
+        return jsonify({'error': 'Missing name'}), 400
+
+    new_place = Place.create(city_id=city_id,
+                             user_id=user_id, name=data['name'])
+    return jsonify(new_place.to_dict()), 201
+
+
+@places_blueprint.route('/api/v1/places/<place_id>', methods=['PUT'])
+def update_place(place_id):
+    place = Place.get(place_id)
+    if place is None:
+        return jsonify({'error': 'Place not found'}), 404
+
+    data = request.get_json()
+    if data is None:
+        return jsonify({'error': 'Not a JSON'}), 400
+
+    ignored_keys = ['id', 'user_id', 'city_id', 'created_at', 'updated_at']
+    for key, value in data.items():
+        if key not in ignored_keys:
+            setattr(place, key, value)
+
+    place.save()  # Implement the save method on your Place model
+    return jsonify(place.to_dict()), 200
