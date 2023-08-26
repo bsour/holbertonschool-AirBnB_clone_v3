@@ -52,12 +52,12 @@ def post_states():
     return jsonify(state_obj.to_dict()), 201
 
 
-@app_views.route("/states/<state_id>", methods=["PUT"])
+@app_views.route("/states/<state_id>", methods=["PUT"], strict_slashes=False)
 def put_state(state_id):
     """Updates a State object"""
     state = storage.get(State, state_id)
     if not state:
-        abort(404)
+        return jsonify({"error": "Not found"}), 404
 
     try:
         update_state = request.get_json()
