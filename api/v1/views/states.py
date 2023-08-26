@@ -4,6 +4,7 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
 from models.state import State
+from json import JSONDecodeError
 
 
 @app_views.route("/states", methods=["GET"], strict_slashes=False)
@@ -41,8 +42,11 @@ def post_states():
     """Creates a State"""
     try:
         new_state = request.get_json()
-    except Exception as e:
-        return jsonify({"error": "Not a valid JSON"}), 400
+    except JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not new_state:
+        return jsonify({"error": "No JSON data provided"}), 400
 
     if "name" not in new_state:
         return jsonify({"error": "Missing name"}), 400
