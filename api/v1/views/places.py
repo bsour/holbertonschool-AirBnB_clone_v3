@@ -12,13 +12,18 @@ from models.user import User
 @app_views.route("/cities/<city_id>/places", methods=["GET"],
                  strict_slashes=False)
 def places_by_city(city_id):
+    """
+    retrieves all Place objects by city
+    :return: json of all Places
+    """
     place_list = []
-    city_obj = storage.get(City, city_id)
+    city_obj = storage.get("City", str(city_id))
+    
     if not city_obj:
-        abort(404)
+        abort(404, "City not found")
     
     for obj in city_obj.places:
-        place_list.append(obj.to_dict())
+        place_list.append(obj.to_json())
 
     return jsonify(place_list)
 
