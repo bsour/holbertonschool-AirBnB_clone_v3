@@ -5,6 +5,7 @@ from flask import jsonify, abort, request
 from models import storage
 from models.state import State
 from models.city import City
+from json import JSONDecodeError
 
 
 @app_views.route(
@@ -49,8 +50,11 @@ def post_city(state_id):
     if state:
         try:
             new_city = request.get_json()
-        except Exception as e:
-            return jsonify({"error": "Not a JSON"}), 400
+        except JSONDecodeError as e:
+            return jsonify({"error": "Invalid JSON"}), 400
+
+        if not new_city:
+            return jsonify({"error": "No JSON data provided"}), 400
 
         if "name" not in new_city:
             return jsonify({"error": "Missing name"}), 400
@@ -67,12 +71,15 @@ def put_city(city_id):
     """Updates a City object"""
     city = storage.get(City, city_id)
     if not city:
-        abort(404)
+        return jsonify({"error": "City not found"}), 404
 
     try:
         update_city = request.get_json()
-    except Exception as e:
-        return jsonify({"error": "Not a JSON"}), 400
+    except JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not update_city:
+        return jsonify({"error": "No JSON data provided"}), 400
 
     for key, value in update_city.items():
         if key not in ["id", "state_id", "created_at", "updated_at"]:
