@@ -4,6 +4,7 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
 from models.user import User
+from json import JSONDecodeError
 
 
 @app_views.route("/users", methods=["GET"], strict_slashes=False)
@@ -38,8 +39,11 @@ def post_user():
     """Creates a User"""
     try:
         new_user = request.get_json()
-    except Exception as e:
-        return jsonify({"error": "Not a JSON"}), 400
+    except JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not new_user:
+        return jsonify({"error": "No JSON data provided"}), 400
 
     if "name" not in new_user:
         return jsonify({"error": "Missing name"}), 400
@@ -51,15 +55,18 @@ def post_user():
 
 @app_views.route("/users/<user_id>", methods=["PUT"])
 def put_user(user_id):
-    """Updates a user object"""
+    """Updates a User object"""
     user = storage.get(User, user_id)
     if not user:
-        abort(404)
+        return jsonify({"error": "User not found"}), 404
 
     try:
         update_user = request.get_json()
-    except Exception as e:
-        return jsonify({"error": "Not a JSON"}), 400
+    except JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not update_user:
+        return jsonify({"error": "No JSON data provided"}), 400
 
     for key, value in update_user.items():
         if key not in ["id", "created_at", "updated_at"]:
