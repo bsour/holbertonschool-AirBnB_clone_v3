@@ -45,8 +45,11 @@ def post_user():
     if not new_user:
         return jsonify({"error": "No JSON data provided"}), 400
 
-    if "name" not in new_user:
-        return jsonify({"error": "Missing name"}), 400
+    if "email" not in new_user:
+        return jsonify({"error": "Missing email"}), 400
+
+    if "password" not in new_user:
+        return jsonify({"error": "Missing password"}), 400
 
     user_obj = User(**new_user)
     user_obj.save()
