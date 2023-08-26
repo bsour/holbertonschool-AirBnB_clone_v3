@@ -61,12 +61,15 @@ def put_state(state_id):
     """Updates a State object"""
     state = storage.get(State, state_id)
     if not state:
-        return jsonify({"error": "Not found"}), 404
+        return jsonify({"error": "State not found"}), 404
 
     try:
         update_state = request.get_json()
-    except Exception as e:
-        return jsonify({"error": "Not a JSON"}), 400
+    except JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not update_state:
+        return jsonify({"error": "No JSON data provided"}), 400
 
     for key, value in update_state.items():
         if key not in ["id", "created_at", "updated_at"]:
