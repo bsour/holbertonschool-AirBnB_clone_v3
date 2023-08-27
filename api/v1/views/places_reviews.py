@@ -80,7 +80,7 @@ def post_review(place_id):
 
 
 @app_views.route("/reviews/<review_id>", methods=["PUT"])
-def put_city(review_id):
+def put_review(review_id):
     """Updates a Review object"""
     review = storage.get(Review, review_id)
     if not review:
