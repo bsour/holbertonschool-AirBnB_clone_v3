@@ -4,7 +4,6 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
 from models.state import State
-from json import JSONDecodeError
 
 
 @app_views.route("/states", methods=["GET"], strict_slashes=False)
@@ -18,19 +17,19 @@ def all_states():
 def get_state(state_id):
     """Retrieves a State object"""
     state = storage.get(State, state_id)
-    if state:
+    if state is not None:
         return jsonify(state.to_dict())
     abort(404)
 
 
 @app_views.route(
-        "/states/<state_id>",
-        methods=["DELETE"],
-        strict_slashes=False)
+    "/states/<state_id>",
+    methods=["DELETE"],
+    strict_slashes=False)
 def delete_state(state_id):
     """Deletes a State object"""
     state = storage.get(State, state_id)
-    if state:
+    if state is not None:
         storage.delete(state)
         storage.save()
         return jsonify({})
@@ -40,12 +39,8 @@ def delete_state(state_id):
 @app_views.route("/states", methods=["POST"], strict_slashes=False)
 def post_states():
     """Creates a State"""
-    try:
-        new_state = request.get_json()
-    except JSONDecodeError as e:
-        return jsonify({"error": "Invalid JSON"}), 400
-
-    if not new_state:
+    new_state = request.get_json()
+    if new_state is None:
         return jsonify({"error": "No JSON data provided"}), 400
 
     if "name" not in new_state:
@@ -60,15 +55,11 @@ def post_states():
 def put_state(state_id):
     """Updates a State object"""
     state = storage.get(State, state_id)
-    if not state:
+    if state is None:
         return jsonify({"error": "State not found"}), 404
 
-    try:
-        update_state = request.get_json()
-    except JSONDecodeError as e:
-        return jsonify({"error": "Invalid JSON"}), 400
-
-    if not update_state:
+    update_state = request.get_json()
+    if update_state is None:
         return jsonify({"error": "No JSON data provided"}), 400
 
     for key, value in update_state.items():
