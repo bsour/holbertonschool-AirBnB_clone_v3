@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-Reviews Blueprint
+"""Reviews Blueprint"""
 from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
 from models.place import Place
 from models.review import Review
 from models.user import User
-from json import JSONDecodeError
 
 
 @app_views.route(
@@ -53,14 +52,16 @@ def delete_review(review_id):
         strict_slashes=False)
 def post_review(place_id):
     """Creates a Review"""
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/json':
+        abort(400)
+
     place = storage.get(Place, place_id)
     if place:
         try:
             new_review = request.get_json()
-        except JSONDecodeError as e:
-            return jsonify({"error": "Invalid JSON"}), 400
-        if not new_review:
-            return jsonify({"error": "No JSON data provided"}), 400
+        except Exception:
+            return jsonify({"error": "Not a JSON"}), 400
 
         user_id = new_review.get("user_id")
         if not user_id:
@@ -88,10 +89,8 @@ def put_review(review_id):
 
     try:
         update_review = request.get_json()
-    except JSONDecodeError as e:
-        return jsonify({"error": "Invalid JSON"}), 400
-    if not update_review:
-        return jsonify({"error": "No JSON data provided"}), 400
+    except Exception:
+        return jsonify({"error": "Not a JSON"}), 400
 
     for key, value in update_review.items():
         if key not in [
