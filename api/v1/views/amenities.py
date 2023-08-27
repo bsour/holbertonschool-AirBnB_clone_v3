@@ -1,5 +1,6 @@
+"""
 #!/usr/bin/python3
-"""Amenity Blueprint"""
+Amenity Blueprint
 from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
@@ -9,7 +10,7 @@ from json import JSONDecodeError
 
 @app_views.route("/amenities", methods=["GET"], strict_slashes=False)
 def all_amenities():
-    """Retrieves the list of all Amenity objects"""
+    Retrieves the list of all Amenity objects
     amenities = storage.all(Amenity)
     return jsonify([amenity.to_dict() for amenity in amenities.values()])
 
@@ -19,7 +20,7 @@ def all_amenities():
         methods=["GET"],
         strict_slashes=False)
 def get_amenity(amenity_id):
-    """Retrieves a Amenity object"""
+    Retrieves a Amenity object
     amenity = storage.get(Amenity, amenity_id)
     if amenity:
         return jsonify(amenity.to_dict())
@@ -31,7 +32,7 @@ def get_amenity(amenity_id):
         methods=["DELETE"],
         strict_slashes=False)
 def delete_amenity(amenity_id):
-    """Deletes a Amenity object"""
+    Deletes a Amenity object
     amenity = storage.get(Amenity, amenity_id)
     if amenity:
         storage.delete(amenity)
@@ -42,7 +43,7 @@ def delete_amenity(amenity_id):
 
 @app_views.route("/amenities", methods=["POST"], strict_slashes=False)
 def post_amenity():
-    """Creates an Amenity"""
+    Creates an Amenity
     try:
         new_amenity = request.get_json()
     except JSONDecodeError as e:
@@ -61,7 +62,7 @@ def post_amenity():
 
 @app_views.route("/amenities/<amenity_id>", methods=["PUT"])
 def put_amenity(amenity_id):
-    """Updates an Amenity object"""
+    Updates an Amenity object
     amenity = storage.get(Amenity, amenity_id)
     if not amenity:
         return jsonify({"error": "Amenity not found"}), 404
@@ -80,3 +81,4 @@ def put_amenity(amenity_id):
 
     amenity.save()
     return jsonify(amenity.to_dict()), 200
+"""

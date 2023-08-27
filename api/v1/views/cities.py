@@ -1,5 +1,6 @@
+"""
 #!/usr/bin/python3
-"""City Blueprint"""
+City Blueprint
 from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
@@ -13,7 +14,7 @@ from json import JSONDecodeError
         methods=["GET"],
         strict_slashes=False)
 def all_cities(state_id):
-    """Retrieves the list of all City objects of a State"""
+    Retrieves the list of all City objects of a State
     state = storage.get(State, state_id)
     if state:
         return jsonify([city.to_dict() for city in state.cities])
@@ -22,7 +23,7 @@ def all_cities(state_id):
 
 @app_views.route("/cities/<city_id>", methods=["GET"], strict_slashes=False)
 def get_city(city_id):
-    """Retrieves a City object"""
+    Retrieves a City object
     city = storage.get(City, city_id)
     if city:
         return jsonify(city.to_dict())
@@ -31,7 +32,7 @@ def get_city(city_id):
 
 @app_views.route("/cities/<city_id>", methods=["DELETE"], strict_slashes=False)
 def delete_city(city_id):
-    """Deletes a City object"""
+    Deletes a City object
     city = storage.get(City, city_id)
     if city:
         storage.delete(city)
@@ -45,7 +46,7 @@ def delete_city(city_id):
         methods=["POST"],
         strict_slashes=False)
 def post_city(state_id):
-    """Creates a City"""
+    Creates a City
     state = storage.get(State, state_id)
     if state:
         try:
@@ -68,7 +69,7 @@ def post_city(state_id):
 
 @app_views.route("/cities/<city_id>", methods=["PUT"])
 def put_city(city_id):
-    """Updates a City object"""
+    Updates a City object
     city = storage.get(City, city_id)
     if not city:
         return jsonify({"error": "City not found"}), 404
@@ -87,3 +88,4 @@ def put_city(city_id):
 
     city.save()
     return jsonify(city.to_dict()), 200
+"""
