@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-"""State Blueprint"""
+"""
+State Blueprint route for handling State objects and operations
+"""
 from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
