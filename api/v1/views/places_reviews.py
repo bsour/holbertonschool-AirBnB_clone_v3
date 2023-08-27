@@ -1,4 +1,3 @@
-"""
 #!/usr/bin/python3
 Reviews Blueprint
 from api.v1.views import app_views
@@ -15,7 +14,7 @@ from json import JSONDecodeError
         methods=["GET"],
         strict_slashes=False)
 def all_reviews(place_id):
-    Retrieves the list of all Review objects of a Place
+    """Retrieves the list of all Review objects of a Place"""
     place = storage.get(Place, place_id)
     if place:
         return jsonify([review.to_dict() for review in place.reviews])
@@ -27,7 +26,7 @@ def all_reviews(place_id):
         methods=["GET"],
         strict_slashes=False)
 def get_review(review_id):
-    Retrieves a Review object
+    """Retrieves a Review object"""
     review = storage.get(Review, review_id)
     if review:
         return jsonify(review.to_dict())
@@ -39,7 +38,7 @@ def get_review(review_id):
         methods=["DELETE"],
         strict_slashes=False)
 def delete_review(review_id):
-    Deletes a Review object
+    """Deletes a Review object"""
     review = storage.get(Review, review_id)
     if review:
         storage.delete(review)
@@ -53,7 +52,7 @@ def delete_review(review_id):
         methods=["POST"],
         strict_slashes=False)
 def post_review(place_id):
-    Creates a Review
+    """Creates a Review"""
     place = storage.get(Place, place_id)
     if place:
         try:
@@ -82,7 +81,7 @@ def post_review(place_id):
 
 @app_views.route("/reviews/<review_id>", methods=["PUT"])
 def put_review(review_id):
-    Updates a Review object
+    """Updates a Review object"""
     review = storage.get(Review, review_id)
     if not review:
         return jsonify({"error": "Review not found"}), 404
@@ -101,4 +100,3 @@ def put_review(review_id):
 
     review.save()
     return jsonify(review.to_dict()), 200
-"""
