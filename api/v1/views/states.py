@@ -62,6 +62,10 @@ def post_states():
 @app_views.route("/states/<state_id>", methods=["PUT"])
 def put_state(state_id):
     """Updates a State object"""
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/json':
+        abort(400)
+
     state = storage.get(State, state_id)
     if not state:
         abort(404)
