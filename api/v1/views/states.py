@@ -42,6 +42,10 @@ def delete_state(state_id):
 @app_views.route("/states", methods=["POST"], strict_slashes=False)
 def post_states():
     """Creates a State"""
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/json':
+        abort(400)
+
     try:
         new_state = request.get_json()
     except BadRequest as e:
