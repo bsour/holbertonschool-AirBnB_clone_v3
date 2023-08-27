@@ -83,6 +83,10 @@ def post_review(place_id):
 @app_views.route("/reviews/<review_id>", methods=["PUT"])
 def put_review(review_id):
     """Updates a Review object"""
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/json':
+        abort(400)
+
     review = storage.get(Review, review_id)
     if not review:
         return jsonify({"error": "Review not found"}), 404
