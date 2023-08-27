@@ -54,6 +54,10 @@ def create_place(city_id):
     """
     Creates a Place object.
     """
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/json':
+        abort(400)
+
     city = storage.get(City, city_id)
     if not city:
         abort(404)
